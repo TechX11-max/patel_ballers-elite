@@ -5,5 +5,5 @@
 
 def load_level():
     # future implementation of map loading / hoop position, etc.
-    rim_position = (700, 200)
+    rim_position = (700, 200) # xy coordinated on scrrens
     return rim_position

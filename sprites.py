@@ -5,12 +5,12 @@ from settings import *
 
 # ball class( all classes need to be moved to a seperate file asap.)
 class Ball(pygame.sprite.Sprite):
-    def __init__(self, x, y, r=BALL_RADIUS):
+    def __init__(self, x, y, color=BALL_COLOR, r=BALL_RADIUS):
         super().__init__()
         self.pos = pygame.Vector2(x, y)
         self.vel = pygame.Vector2(0, 0)
         self.r = r
-        self.color = BALL_COLOR
+        self.color = color # default color( wouldn't run for me before adding this.)
         self.on_ground = False
 
     def apply_gravity(self, dt):  # gravity application method(dt =delta time which is time between frames)

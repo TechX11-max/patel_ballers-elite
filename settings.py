@@ -1,4 +1,5 @@
 # settings.py
+# tuple values from chatgpt
 
 #not in the space invaders format/ but will be incorporated soon. Main goal
 #was to interpret gravity and mechanics.
@@ -14,6 +15,6 @@ MIN_BOUNCE_VEL = 60
 
 BALL_RADIUS = 14 # defining balls features with tuple values
 BALL_COLOR = (244, 127, 36)
-BACKGROUND = (30, 30, 30)
+BACKGROUND = (0, 0, 0)
 HOOP_COLOR = (200, 200, 200)
 DRAG_LINE_COLOR = (100, 220, 255)
