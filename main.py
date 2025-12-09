@@ -32,12 +32,20 @@ def collide_with_segment(ball, p1, p2): # updated in utils.py for rim collision(
         if v_dot < 0:
             ball.vel -= (1 + REST) * v_dot * n
 
-def create_rim_segments(center, radius): # creates left and right rim segments for collision
-    left_outer = pygame.Vector2(center.x - radius, center.y) # left outer point
-    left_inner = pygame.Vector2(center.x - radius * 0.25, center.y) # left inner point
-    right_inner = pygame.Vector2(center.x + radius * 0.25, center.y) # right inner point
-    right_outer = pygame.Vector2(center.x + radius, center.y) # right outer point
-    return left_outer, left_inner, right_inner, right_outer # return the four points. This is meant to return the values where the rim hits the ball
+def create_rim_segments(center, radius):
+   
+    # How long each rim piece is (short enough to leave a wide gap)
+    seg_len = radius * 0.55 # makes the rim bigger
+
+    # lrs
+    left_p1 = pygame.Vector2(center.x - radius, center.y) # leftmost point of rim
+    left_p2 = pygame.Vector2(center.x - radius + seg_len, center.y) # point seg_len to the right of leftmost point
+
+    # rrs
+    right_p1 = pygame.Vector2(center.x + radius - seg_len, center.y) # point seg_len to the left of rightmost point
+    right_p2 = pygame.Vector2(center.x + radius, center.y) # rightmost point of rim
+
+    return left_p1, left_p2, right_p1, right_p2 # returns the four points defining the rim segments
 
 def main():
     player1 = Ball(140, HEIGHT - BALL_RADIUS - 1)  # ball for p 1 (why do we use -1? to prevent sticking to ground)
@@ -95,16 +103,16 @@ def main():
                 score_p1 = 0
                 score_p2 = 0
 
-        for ball in [player1, player2]:
-            ball.update(dt)
+        for ball in [player1, player2]: # update both balls
+            ball.update(dt) # update ball position and velocity
             left_p1, left_p2, right_p1, right_p2 = create_rim_segments(rim_center, rim_radius)
-            collide_with_segment(ball, left_p1, left_p2)
-            collide_with_segment(ball, right_p1, right_p2)
-            ball.backboard_collision(backboard_rect)
+            collide_with_segment(ball, left_p1, left_p2) # rim collision
+            collide_with_segment(ball, right_p1, right_p2) # rim collision
+            ball.backboard_collision(backboard_rect) # backboard collision
 
-        net_w = rim_radius * 1.0
-        net_h = rim_radius * 1.5
-        net_rect = pygame.Rect(rim_center.x - net_w / 2, rim_center.y, net_w, net_h)
+        net_w = rim_radius * 1.7 # net width
+        net_h = rim_radius * 1.5  # net height
+        net_rect = pygame.Rect(rim_center.x - net_w / 2, rim_center.y, net_w, net_h) # net rectangle /2 to center it on rim - y to position below rim rim_center.y for top of net at rim center
 
         for ball in [player1, player2]:
             state = ball_state[ball]
@@ -114,7 +122,7 @@ def main():
                 if prev_y < rim_center.y and net_rect.collidepoint(ball.pos.x, ball.pos.y):
                     state["entered"] = True
             if state["entered"]:
-                if cur_y > rim_center.y + rim_radius * 0.5:
+                if cur_y > rim_center.y + rim_radius * 0.25:
                     if ball is player1:
                         score_p1 += 1
                     elif ball is player2:
@@ -131,7 +139,7 @@ def main():
         player1.draw(screen)
         player2.draw(screen)
 
-        if dragging:
+        if dragging: # creates the shooting line when dragging( visual aid for shooting)
             mouse = pygame.Vector2(pygame.mouse.get_pos())
             pygame.draw.line(screen, DRAG_LINE_COLOR, drag_start, mouse, 3)
 
