@@ -14,6 +14,30 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))  # sets the width and height
 clock = pygame.time.Clock()
 font = pygame.font.SysFont(None, 20)  # default font
 
+def start_screen(): # most proud of
+    waiting = True
+    while waiting: # start screen loop
+        screen.fill((0, 0, 0))  # Black background
+
+        title_text = font.render("BALLERS ELITE", True, (255, 255, 255)) # white title text
+        start_text = font.render("Press SPACE", True, (200, 200, 200)) # light grey start text
+
+        screen.blit(title_text, (WIDTH//2 - title_text.get_width()//2, HEIGHT//2 - 60)) # center title //2 is to center text-60 to position it higher
+        screen.blit(start_text, (WIDTH//2 - start_text.get_width()//2, HEIGHT//2 + 10)) # center start text +10 to position it lower
+
+        for event in pygame.event.get(): # event loop for start screen
+            if event.type == pygame.QUIT: # quit event
+                pygame.quit()
+                exit()
+            if event.type == pygame.KEYDOWN: # whole thing is if you press scacebar it goes to main game
+                if event.key == pygame.K_SPACE:
+                    waiting = False # quit waiting loop
+
+        pygame.display.update() # update display 
+        clock.tick(60) # 60 fps for start screen
+
+start_screen() # call to start screen function
+
 def collide_with_segment(ball, p1, p2): # updated in utils.py for rim collision( wasn't realistic before( some help from gpt for debug/format effieciently))
     line = p2 - p1 # line vector( p2-p1 gives direction and length of line)
     line_len2 = line.dot(line)
@@ -35,7 +59,7 @@ def collide_with_segment(ball, p1, p2): # updated in utils.py for rim collision(
 def create_rim_segments(center, radius):
    
     # How long each rim piece is (short enough to leave a wide gap)
-    seg_len = radius * 0.55 # makes the rim bigger
+    seg_len = radius * 0.1 # makes the rim bigger
 
     # lrs
     left_p1 = pygame.Vector2(center.x - radius, center.y) # leftmost point of rim
@@ -90,17 +114,17 @@ def main():
                     max_speed = 1500  # max speed cap
                     current_player.vel = drag_vec.normalize() * min(speed, max_speed)
                 dragging = False  # stop dragging
-                current_player = player2 if current_player == player1 else player1
-            elif e.type == pygame.KEYDOWN and e.key == pygame.K_SPACE:
-                player1.pos = pygame.Vector2(140, HEIGHT - BALL_RADIUS - 1)
-                player1.vel = pygame.Vector2(0, 0)
-                player2.pos = pygame.Vector2(300, HEIGHT - BALL_RADIUS - 1)
-                player2.vel = pygame.Vector2(0, 0)
-                ball_state[player1]["entered"] = False
-                ball_state[player2]["entered"] = False
-                ball_state[player1]["prev_y"] = player1.pos.y
-                ball_state[player2]["prev_y"] = player2.pos.y
-                score_p1 = 0
+                current_player = player2 if current_player == player1 else player1 # switch players
+            elif e.type == pygame.KEYDOWN and e.key == pygame.K_SPACE: # reset game when space is pressed(very useful for physics which kinda suck)
+                player1.pos = pygame.Vector2(140, HEIGHT - BALL_RADIUS - 1) # reset player 1 position
+                player1.vel = pygame.Vector2(0, 0) # reset player 1 velocity
+                player2.pos = pygame.Vector2(300, HEIGHT - BALL_RADIUS - 1) #RESET P2 POS
+                player2.vel = pygame.Vector2(0, 0) # P2 Velo reset
+                ball_state[player1]["entered"] = False # scrore reset
+                ball_state[player2]["entered"] = False # score reset
+                ball_state[player1]["prev_y"] = player1.pos.y # reset previous y pos
+                ball_state[player2]["prev_y"] = player2.pos.y # reset previous y pos
+                score_p1 = 0 # scoring system reset
                 score_p2 = 0
 
         for ball in [player1, player2]: # update both balls
@@ -114,28 +138,28 @@ def main():
         net_h = rim_radius * 1.5  # net height
         net_rect = pygame.Rect(rim_center.x - net_w / 2, rim_center.y, net_w, net_h) # net rectangle /2 to center it on rim - y to position below rim rim_center.y for top of net at rim center
 
-        for ball in [player1, player2]:
-            state = ball_state[ball]
-            prev_y = state["prev_y"]
+        for ball in [player1, player2]: # this section handles scoring and collision with net
+            state = ball_state[ball] # this  gets the state for the current ball( entered flag and previous y pos)
+            prev_y = state["prev_y"] # previous y pos
             cur_y = ball.pos.y
             if not state["entered"]:
-                if prev_y < rim_center.y and net_rect.collidepoint(ball.pos.x, ball.pos.y):
-                    state["entered"] = True
-            if state["entered"]:
-                if cur_y > rim_center.y + rim_radius * 0.25:
+                if prev_y < rim_center.y and net_rect.collidepoint(ball.pos.x, ball.pos.y): # if ball was above rim and is now inside net rect
+                    state["entered"] = True # mark as entered
+            if state["entered"]: # if ball has entered net
+                if cur_y > rim_center.y + rim_radius * 0.25: # if ball has dropped below a certain point (rim_center.y + rim_radius * 0.25)
                     if ball is player1:
-                        score_p1 += 1
-                    elif ball is player2:
+                        score_p1 += 1# increment player 1 score
+                    elif ball is player2: # increment player 2 score
                         score_p2 += 1
                     state["entered"] = False
             state["prev_y"] = cur_y
 
-        screen.fill(BACKGROUND)
+        screen.fill(BACKGROUND) # fill background color
         rim_center, rim_radius = draw_hoop(screen, rim_center, rim_radius)
-        pygame.draw.rect(screen, (180, 180, 180), backboard_rect)
+        pygame.draw.rect(screen, (180, 180, 180), backboard_rect) # draw backboard
         left_p1, left_p2, right_p1, right_p2 = create_rim_segments(rim_center, rim_radius)
-        pygame.draw.line(screen, HOOP_COLOR, left_p1, left_p2, 6)
-        pygame.draw.line(screen, HOOP_COLOR, right_p1, right_p2, 6)
+        pygame.draw.line(screen, HOOP_COLOR, left_p1, left_p2, 6) # draw rim segments
+        pygame.draw.line(screen, HOOP_COLOR, right_p1, right_p2, 6) # draw rim segments
         player1.draw(screen)
         player2.draw(screen)
 
@@ -150,7 +174,7 @@ def main():
         )
         screen.blit(text, (20, 20))
 
-        score_text = font.render(f"P1: {score_p1}   P2: {score_p2}", True, (255, 255, 255))
+        score_text = font.render(f"P1: {score_p1}   P2: {score_p2}", True, (255, 255, 255)) # score display(on top of screen)(255,255,255 is white).
         screen.blit(score_text, (20, 44))
 
         pygame.display.flip()
