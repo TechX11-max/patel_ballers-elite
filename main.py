@@ -12,7 +12,7 @@ import math # import math for calculations
 pygame.init()  # initialize pygame
 screen = pygame.display.set_mode((WIDTH, HEIGHT))  # sets the width and height 
 clock = pygame.time.Clock()
-font = pygame.font.SysFont(None, 20)  # default font
+font = pygame.font.SysFont(None, 30)  # default font
 
 def start_screen(): # most proud of
     waiting = True
@@ -59,7 +59,7 @@ def collide_with_segment(ball, p1, p2): # updated in utils.py for rim collision(
 def create_rim_segments(center, radius):
    
     # How long each rim piece is (short enough to leave a wide gap)
-    seg_len = radius * 0.1 # makes the rim bigger
+    seg_len = radius * 0.5# makes the rim bigger
 
     # lrs
     left_p1 = pygame.Vector2(center.x - radius, center.y) # leftmost point of rim
