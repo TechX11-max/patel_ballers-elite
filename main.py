@@ -1,6 +1,6 @@
 # main.py
 # used chat to format the code(files properly)
-# used chatgpt for some debugging and tuple values
+# used chatgpt for some debugging and tuple values-https://chatgpt.com/,     https://stackoverflow.com/questions/2191699/find-an-element-in-a-list-of-tuples
 import sys
 import pygame
 from settings import *
